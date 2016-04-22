@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Sunshine</string>
+    <string name="hello">hello,world!</string>
+    <string name="action_map">打开地图</string>
+    <string name="action_refresh">刷新</string>
+    <string name="action_share">分享</string>
+    <string name="action_setting">设置</string>
+    <string name="title_activity_detail">详细天气信息</string>
+    <string name="pref_location_label">位置</string>
+    <string name="pref_location_key" translatable="false">location</string>
+    <string name="pref_location_default" translatable="false">pukou</string>
+    <string name="pref_units_label">温度格式</string>
+    <string name="pref_units_label_metric">华氏</string>
+    <string name="pref_units_label_imperial">摄氏</string>
+    <string name="pref_units_key" translatable="false">units</string>
+    <string name="pref_units_metric" translatable="false">metric</string>
+    <string name="pref_units_imperial" translatable="false">imperial</string>
+</resources>
