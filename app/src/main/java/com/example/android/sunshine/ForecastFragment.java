@@ -121,8 +121,13 @@ public class ForecastFragment extends Fragment {
             }
         }
 
+        public String formatHighLow(double min,double max){
+            String str;
+            str = min + "/" + max;
+            return str;
+        }
         private String[] getWeatherFromJson(String forecastString) throws JSONException{
-            /* from api.openweathermap.org weatherDate process
+            // from api.openweathermap.org weatherDate process
             final String OWM_LIST = "list";
             final String OWM_WEATHER = "weather";
             final String OWM_DESCRIPTION = "description";
@@ -150,8 +155,8 @@ public class ForecastFragment extends Fragment {
                 description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
                 results[i] += " "+description;
                 Log.e("i=",i+"   "+results[i]);
-            }*/
-            JSONObject weatherJson = new JSONObject(forecastString);
+            }
+            /*JSONObject weatherJson = new JSONObject(forecastString);
             final String LIST = "HeWeather data service 3.0";
             final String DAY = "daily_forecast";
             final String DATE = "date";
@@ -171,7 +176,7 @@ public class ForecastFragment extends Fragment {
                 weatherDes +=" N:"+dayArray.getJSONObject(i).getJSONObject(COND).getString("txt_n");
                 results[i]= date+"    "+temp+"    "+weatherDes;
                 //Log.e("i=",i+"   "+results[i]);
-            }
+            }*/
             return results;
         }
 
