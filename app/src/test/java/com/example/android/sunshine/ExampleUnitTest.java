@@ -1,5 +1,7 @@
 package com.example.android.sunshine;
 
+import android.util.Log;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -10,6 +12,10 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+        assertEquals(4, 1 + 3);
+        String str= "Junit is working fine";
+        assertEquals("Junit is working fine",str);
     }
+
+
 }

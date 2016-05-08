@@ -37,7 +37,7 @@ public class ForecastFragment extends Fragment {
 
     private ArrayAdapter<String> mForecastAdapter;
     private ListView listView;
-    private FetchWeatherTask weatherTask = new FetchWeatherTask();
+    //private FetchWeatherTask weatherTask = new FetchWeatherTask();
 
     public ForecastFragment() {
 
@@ -105,7 +105,7 @@ public class ForecastFragment extends Fragment {
         String units2 = prefs.getString(getString(R.string.pref_units_key),
                 getString(R.string.pref_units_imperial));
         Toast.makeText(getActivity(),units1+"   "+units2,Toast.LENGTH_LONG).show();*/
-        weatherTask.execute(position);
+        new FetchWeatherTask().execute(position);
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -140,21 +140,21 @@ public class ForecastFragment extends Fragment {
             //JSONArray mainTempArray = forecastJson.getJSONArray(OWN_MAIN);
             //JSONArray weatherArray = forecastJson.getJSONArray(OWM_WEATHER);
             //JSONArray dataArray = forecastJson.getJSONArray(OWM_DT);
-            Log.e("----------"," "+listArray.length());
+            //Log.e("----------"," "+listArray.length());
             String []results = new String [listArray.length()];
             for (int i = 0; i <listArray.length() ; i++) {
                 String day = listArray.getJSONObject(i).getString(OWM_DT);
                 String description;
                 String highAndLow;
                 JSONObject weatherDes = listArray.getJSONObject(i);
-                results[i] = day;
+                results[i] = day.substring(5,13)+"时 ";
                 JSONObject mainObj = weatherDes.getJSONObject(OWM_MAIN);
                 highAndLow = formatHighLow(mainObj.getDouble(OWM_MIN),mainObj.getDouble(OWM_MAX));
                 results[i] += " "+highAndLow;
                 JSONArray weatherArray = weatherDes.getJSONArray(OWM_WEATHER);
                 description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
                 results[i] += " "+description;
-                Log.e("i=",i+"   "+results[i]);
+                //Log.e("i=",i+"   "+results[i]);
             }
             /*JSONObject weatherJson = new JSONObject(forecastString);
             final String LIST = "HeWeather data service 3.0";
@@ -215,8 +215,7 @@ public class ForecastFragment extends Fragment {
                         .appendQueryP,arameter(DAYS_PARAM Integer.toString(numDays))
                         .appendQueryParameter(APPID_PARAM,id).build();
                 URL url = new URL(builtUri.toString());*/
-                String urlString ="https://api.heweather.com/x3/weather?city=" +
-                        params[0]+"&key=db5f1b7aae8249c8854867670ebfc312";
+                String urlString ="http://api.openweathermap.org/data/2.5/forecast?q="+params[0]+"&mode=json&units=metric&lang=zh_cn&cnt=50&appid=98bd9ea6b58ec679fd7281e900797081";
                 URL url = new URL(urlString);
                 //Log.e(LOG_TAG, "Built URI " + builtUri.toString());
                 // Create the request to OpenWeatherMap, and open the connection
