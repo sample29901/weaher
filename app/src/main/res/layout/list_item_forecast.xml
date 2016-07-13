@@ -1,13 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/list_item_forecast_textView"
+    <!--
+        list_item_date_textview
+        list_item_forecast_textview
+        list_item_high_textview
+        list_item_low_textview
+        list_item_icon
+    -->
+<LinearLayout
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:textColor="#000000"
-    android:paddingLeft="18dp"
-    android:background="#ffffff"
-    android:textSize="18dp"
-    android:minHeight="?android:attr/listPreferredItemHeight" />
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/list_item_icon"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_vertical"
+        android:padding="8dp"
+        />
+
+
+    <LinearLayout
+        android:layout_width="@dimen/use_weight_layout"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:id="@+id/list_item_date_textview"
+            android:textSize="20sp"
+            android:padding="@dimen/default_padding"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/list_item_forecast_textview"
+
+            android:padding="@dimen/default_padding"
+            android:textSize="20sp"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="6dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            
+            android:id="@+id/list_item_high_textview"
+            android:padding="@dimen/default_padding"
+            android:textSize="20sp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:id="@+id/list_item_low_textview"
+            android:padding="@dimen/default_padding"
+            android:textSize="20sp"
+            android:gravity="center"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>
+
+

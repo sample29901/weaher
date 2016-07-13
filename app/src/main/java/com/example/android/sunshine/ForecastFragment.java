@@ -6,47 +6,80 @@ package com.example.android.sunshine;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.content.CursorLoader;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.example.android.sunshine.data.WeatherContract;
+
 import java.util.ArrayList;
 
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>{
 
-    private ArrayAdapter<String> mForecastAdapter;
-    private ListView listView;
+    private ForecastAdapter mForecastAdapter;
+    private static final int FORECAST_LOADER = 0;
     //private FetchWeatherTask weatherTask = new FetchWeatherTask();
+
+    private static final String[] FORECAST_COLUMNS = {
+            //在此案例下，id 需要完全描述表名，因为
+            // 内容提供器将位置和天气表加入后台中
+            // （这两个表都有 _id 列）
+            // 一方面，这样做很麻烦。另一方面，您可以使用用户设置的位置（只在位置表中）
+            // 搜索天气表。
+            // 因此，有了这种便利，麻烦也值得了。
+            WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
+            WeatherContract.WeatherEntry.COLUMN_DATE,
+            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
+            WeatherContract.LocationEntry.COLUMN_COORD_LAT,
+            WeatherContract.LocationEntry.COLUMN_COORD_LONG
+    };
+    // 这些索引与 FORECAST_COLUMNS 相关联。如果 FORECAST_COLUMNS 更改，那么这些
+    // 必须更改。
+    static final int COL_WEATHER_ID = 0;
+    static final int COL_WEATHER_DATE = 1;
+    static final int COL_WEATHER_DESC = 2;
+    static final int COL_WEATHER_MAX_TEMP = 3;
+    static final int COL_WEATHER_MIN_TEMP = 4;
+    static final int COL_LOCATION_SETTING = 5;
+    static final int COL_WEATHER_CONDITION_ID = 6;
+    static final int COL_COORD_LAT = 7;
+    static final int COL_COORD_LONG = 8;
 
     public ForecastFragment() {
 
     }
 
-    @Override
+    /*@Override
     public void onStart() {
         super.onStart();
         updateWeather();
+    }*/
+
+    public void onLocationChanged(){
+        updateWeather();
+        getLoaderManager().restartLoader(FORECAST_LOADER,null,this);
     }
 
     @Override
@@ -74,41 +107,100 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main,container,false);
-        mForecastAdapter = new ArrayAdapter<>(
+        /*mForecastAdapter = new ArrayAdapter<>(
                 getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textView,
                 new ArrayList<String>()
-        );
-        listView = (ListView)rootView.findViewById(R.id.list_forecast);
+        );*/
+
+        //通过content provider 查询
+        /*String locationSetting = Utility.getPreferredLocation(getActivity());
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting,System.currentTimeMillis());
+        Cursor cur = getActivity().getContentResolver().query(
+                weatherForLocationUri,
+                null,
+                null,
+                null,
+                sortOrder
+        );*/
+
+
+        mForecastAdapter = new ForecastAdapter(getActivity(),null,0);
+
+        ListView listView = (ListView)rootView.findViewById(R.id.list_forecast);
         listView.setAdapter(mForecastAdapter);
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(getActivity(), "123456789", Toast.LENGTH_SHORT).show();
-                String forecast = mForecastAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra(Intent.EXTRA_TEXT, forecast);
-                startActivity(intent);
+                //String forecast = mForecastAdapter.getItem(position);
+                //Intent intent = new Intent(getActivity(), DetailActivity.class);
+                //intent.putExtra(Intent.EXTRA_TEXT, forecast);
+                //startActivity(intent);
+                Cursor cursor = (Cursor)parent.getItemAtPosition(position);
+                if(cursor != null){
+                    String locationSetting = Utility.getPreferredLocation(getActivity());
+                    Intent intent = new Intent(getActivity(),DetailActivity.class)
+                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                                    locationSetting,cursor.getLong(COL_WEATHER_DATE)
+                            ));
+                    startActivity(intent);
+                }
+
             }
         });
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FORECAST_LOADER,null,this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
     private void updateWeather(){
-        String position;
+        //封装到了另一个类里
+        /*String position;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         position = prefs.getString(getString(R.string.pref_location_key),
                 getString(R.string.pref_location_default));
-        /*String units1 = prefs.getString(getString(R.string.pref_units_key),
-                getString(R.string.pref_units_metric));
-        String units2 = prefs.getString(getString(R.string.pref_units_key),
-                getString(R.string.pref_units_imperial));
-        Toast.makeText(getActivity(),units1+"   "+units2,Toast.LENGTH_LONG).show();*/
-        new FetchWeatherTask().execute(position);
+        */
+
+        String location = Utility.getPreferredLocation(getActivity());
+        new FetchWeatherTask(getContext()).execute(location);
     }
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting,System.currentTimeMillis());
+        return new CursorLoader(
+                getActivity(),
+                weatherForLocationUri,
+                FORECAST_COLUMNS,
+                null,
+                null,
+                sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mForecastAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mForecastAdapter.swapCursor(null);
+    }
+
+
+    // fetchWeatherTask
+
+    /*public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
@@ -156,7 +248,7 @@ public class ForecastFragment extends Fragment {
                 results[i] += " "+description;
                 //Log.e("i=",i+"   "+results[i]);
             }
-            /*JSONObject weatherJson = new JSONObject(forecastString);
+            *//*JSONObject weatherJson = new JSONObject(forecastString);
             final String LIST = "HeWeather data service 3.0";
             final String DAY = "daily_forecast";
             final String DATE = "date";
@@ -176,7 +268,7 @@ public class ForecastFragment extends Fragment {
                 weatherDes +=" N:"+dayArray.getJSONObject(i).getJSONObject(COND).getString("txt_n");
                 results[i]= date+"    "+temp+"    "+weatherDes;
                 //Log.e("i=",i+"   "+results[i]);
-            }*/
+            }*//*
             return results;
         }
 
@@ -191,10 +283,10 @@ public class ForecastFragment extends Fragment {
             BufferedReader reader = null;
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
-            /*String format = "json";
+            *//*String format = "json";
             String units = "metric";
             String id = "98bd9ea6b58ec679fd7281e900797081";
-            int numDays = 50;*/
+            int numDays = 50;*//*
             try {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are available at OWM's forecast API page, at
@@ -202,7 +294,7 @@ public class ForecastFragment extends Fragment {
                 //http://api.openweathermap.org/data/2.5/forecast?
                 //q=Nanjing,CN&mode=json&appid=98bd9ea6b58ec679fd7281e900797081
                 //URL url = new URL();
-                /*final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?lang=zh_cn";
+                *//*final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?lang=zh_cn";
                 final String QUERY_PARAM = "q";
                 final String FORMAT_PARAM = "mode";
                 final String UNITS_PARAM = "units";
@@ -214,7 +306,7 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(UNITS_PARAM, units)
                         .appendQueryP,arameter(DAYS_PARAM Integer.toString(numDays))
                         .appendQueryParameter(APPID_PARAM,id).build();
-                URL url = new URL(builtUri.toString());*/
+                URL url = new URL(builtUri.toString());*//*
                 String urlString ="http://api.openweathermap.org/data/2.5/forecast?q="+params[0]+"&mode=json&units=metric&lang=zh_cn&cnt=50&appid=98bd9ea6b58ec679fd7281e900797081";
                 URL url = new URL(urlString);
                 //Log.e(LOG_TAG, "Built URI " + builtUri.toString());
@@ -270,6 +362,6 @@ public class ForecastFragment extends Fragment {
             }
             return null;
         }
-    }
+    }*/
 
 }

@@ -1,46 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.android.sunshine.MainActivity"
+    android:id="@+id/fragment_forecast"
+    android:name="com.example.android.sunshine.ForecastFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-        <!--<EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:id="@+id/city"
-            android:hint="请输入城市"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="39dp"
-            android:layout_marginTop="3dp"
-            android:text="获取天气"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:textColor="#f9fcfe"
-            android:background="@drawable/shape"
-            android:onClick="catchWeather"
-            />-->
-        <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/container"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginBottom="4dp">
-        </FrameLayout>
-    </LinearLayout>
-
-</FrameLayout>
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    tools:context="com.example.android.sunshine.ForecastFragment"
+    tools:layout="@android:layout/list_content" />
