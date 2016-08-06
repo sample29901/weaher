@@ -2,6 +2,8 @@ package com.example.android.sunshine;
 //API key  98bd9ea6b58ec679fd7281e900797081
 //http://api.openweathermap.org/data/2.5/forecast/
 //daily?q=London&mode=json&units=metric&cnt=7&lang=zh_cn&appid=98bd9ea6b58ec679fd7281e900797081
+//http://api.openweathermap.org/data/2.5/forecast/daily?lat=32.153765&lon=118.705698&cnt=7
+//&units=metric&lang=zh_cn&appid=98bd9ea6b58ec679fd7281e900797081
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
